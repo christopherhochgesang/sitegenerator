@@ -3,20 +3,26 @@
 #include <fstream>
 #include <cstring>
 
-int readFile(std::string inputFilePath,std::string templatePath = "NONE");
+int readFile(std::string inputFilePath, std::string templateFilePath = "NONE", std::string outputFilePath = "NONE");
 int writeFirstHalfTemplate(std::fstream& outputStream,std::fstream& templateStream);
 int writeSecondHalfTemplate(std::fstream& outputStream,std::fstream& templateStream);
 
 int main(int argc,char* argv[]){
     //argv[1] = input file
     //argv[2] = optional insert template file
-    if(argc ==3){
+    if(argc == 4){
+        return readFile(std::string(argv[1]),std::string(argv[2]),std::string(argv[3]));
+    }
+    if(argc == 3){
         //template path provided
         return readFile(std::string(argv[1]),std::string(argv[2]));
     }
-    if(argc ==2){
+    if(argc == 2){
         //output to inputfilename.html
         return readFile(std::string(argv[1]));
+    }
+    if(argc == 1){
+        std::cout<<"SiteGenerator uage:\nSiteGenerator inputFileName\nSiteGenerator inputFileName templateFileName\nSiteGenerator inputFileName templateFileName outputFileName\n";
     }
     return 0;
 }
@@ -25,14 +31,22 @@ int main(int argc,char* argv[]){
 /// @param inputFilePath the input file
 /// @param templatePath path of the template file to use. If this isn't default, will paste the 
 /// @return 0 if successful, 1,2,3 if input/output/template weren't able to be opened, 4 if something went wrong
-int readFile(std::string inputFilePath,std::string templatePath){
+int readFile(std::string inputFilePath,std::string templateFilePath,std::string outputFilePath){
     std::fstream inputFile;
     std::fstream outputFile;
     //may not be open
     std::fstream templateFile;
 
     inputFile.open(inputFilePath);
-    outputFile.open(inputFilePath.substr(2,inputFilePath.find_last_of('.')-2)+".html",std::fstream::out);
+    if(outputFilePath=="NONE"){
+        outputFile.open(inputFilePath.substr(2,inputFilePath.find_last_of('.')-2)+".html",std::fstream::out);
+    } else {
+        if(outputFilePath.find(".html")==-1){
+            outputFile.open(outputFilePath+".html",std::fstream::out);
+        } else {
+            outputFile.open(outputFilePath,std::fstream::out);
+        }
+    }
 
     int spaceLen;
     std::string spaceString;
@@ -41,8 +55,8 @@ int readFile(std::string inputFilePath,std::string templatePath){
     std::string line;
 
     if(outputFile.is_open() && inputFile.is_open()){
-        if(templatePath!="NONE"){
-                templateFile.open(templatePath);
+        if(templateFilePath!="NONE"){
+                templateFile.open(templateFilePath);
                 spaceLen = writeFirstHalfTemplate(outputFile,templateFile);
                 if(spaceLen>=0)spaceString = std::string(spaceLen,' ');
                 else return -spaceLen;
@@ -74,7 +88,7 @@ int readFile(std::string inputFilePath,std::string templatePath){
         }
         outputFile << "</p>\n";
 
-        if(templatePath!="NONE"){
+        if(templateFilePath!="NONE"){
             writeSecondHalfTemplate(outputFile,templateFile);
         }
     } else if(!inputFile.is_open()){
