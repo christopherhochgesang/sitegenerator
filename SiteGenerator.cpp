@@ -16,6 +16,7 @@ int main(int argc,char* argv[]){
     if(argc == 3){
         //template path provided
         return readFile(std::string(argv[1]),std::string(argv[2]));
+
     }
     if(argc == 2){
         //output to inputfilename.html
@@ -29,14 +30,13 @@ int main(int argc,char* argv[]){
 
 /// @brief Reads in the input file, converts it to html, and writes to inputFileName.html. 
 /// @param inputFilePath the input file
-/// @param templatePath path of the template file to use. If this isn't default, will paste the 
+/// @param templateFilePath path of the template file to use. If this isn't default, will paste the 
 /// @return 0 if successful, 1,2,3 if input/output/template weren't able to be opened, 4 if something went wrong
 int readFile(std::string inputFilePath,std::string templateFilePath,std::string outputFilePath){
     std::fstream inputFile;
     std::fstream outputFile;
     //may not be open
     std::fstream templateFile;
-
     inputFile.open(inputFilePath);
     if(outputFilePath=="NONE"){
         outputFile.open(inputFilePath.substr(2,inputFilePath.find_last_of('.')-2)+".html",std::fstream::out);
@@ -50,10 +50,8 @@ int readFile(std::string inputFilePath,std::string templateFilePath,std::string 
 
     int spaceLen;
     std::string spaceString;
-
-    bool openPTag;    
+   
     std::string line;
-
     if(outputFile.is_open() && inputFile.is_open()){
         if(templateFilePath!="NONE"){
                 templateFile.open(templateFilePath);
@@ -67,26 +65,17 @@ int readFile(std::string inputFilePath,std::string templateFilePath,std::string 
                 if(!line.empty()){
                     if(line.at(0)=='#'){
                         //title line
-                        if(openPTag){
-                             outputFile<<"</p>\n";
-                             openPTag==false;
-                        }
                         outputFile<<spaceString<<"<h3>"<<line.substr(1)<<"</h3>\n";
                     } else {
                         //paragraph
-                        if(openPTag){
-                            outputFile<<"</p>\n"<<spaceString<<"<p>"<<line;
-                        } else {
-                            outputFile<<spaceString<<"<p>"<<line;
-                            openPTag=true;
-                        }
+                            outputFile<<spaceString<<"<p>"<<line<<"</p>\n";
                     }
                 }
             } catch (...){
                 std::cerr <<"Something went wrong!\n";
             }
         }
-        outputFile << "</p>\n";
+        
 
         if(templateFilePath!="NONE"){
             writeSecondHalfTemplate(outputFile,templateFile);
