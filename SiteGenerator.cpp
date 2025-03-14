@@ -57,7 +57,7 @@ int readFile(std::string inputFilePath,std::string templatePath){
                              outputFile<<"</p>\n";
                              openPTag==false;
                         }
-                        outputFile<<spaceString<<"<h3>"<<line<<"</h3>\n";
+                        outputFile<<spaceString<<"<h3>"<<line.substr(1)<<"</h3>\n";
                     } else {
                         //paragraph
                         if(openPTag){
